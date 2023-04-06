@@ -23,7 +23,7 @@
  Запрещено использовать сторонние библиотеки. Разрешено пользоваться только тем, что встроено в браузер
  */
 
-import './cookie.html';
+// import './cookie.html';
 
 /*
  app - это контейнер для всех ваших домашних заданий
@@ -45,4 +45,92 @@ const addButton = homeworkContainer.querySelector('#add-button');
 // таблица со списком cookie
 const listTable = homeworkContainer.querySelector('#list-table tbody');
 
-function getCookies() {}
+const cookiesMap = getCookies();
+
+let filterValue = '';
+
+updateTable();
+
+function getCookies() {
+  return document.cookie
+  .split('; ')
+  .filter(Boolean)
+  .map((cookie) => cookie.match(/^([^=]+)=(.+)/))
+  .reduce((obj, [, name, value]) => {
+    obj.set(name, value);
+
+    return obj;
+  }, new Map());
+};
+
+filterNameInput.addEventListener('input', () => {
+  filterValue = filterNameInput.value;
+  updateTable();
+});
+
+addButton.addEventListener('click', () => {
+  const name = encodeURIComponent(addNameInput.value.trim());
+  const value = encodeURIComponent(addValueInput.value.trim());
+
+  // trim - убирает пробелы в начале и конце при вводе
+
+  if (!name) {
+    return;
+  }
+
+  document.cookie = `${name}=${value}; SameSite=Strict`;
+  cookiesMap.set(name, value);
+
+  updateTable();
+});
+
+listTable.addEventListener('click', (e) => {
+  const { role, cookieName } = e.target.dataset;
+
+  if (role === 'remove-cookie') {
+    cookiesMap.delete(cookieName);
+    document.cookie = `${cookieName}=deleted; max-age=-1; SameSite=Strict`;
+    updateTable();
+  }
+
+});
+
+function updateTable() {
+  const fragment = document.createDocumentFragment();
+  let total = 0;
+
+  listTable.innerHTML = '';
+
+  for (const [name, value] of cookiesMap) {
+    if (
+      filterValue && !name.toLowerCase().includes(filterValue.toLowerCase()) && !value.toLowerCase().includes(filterValue.toLowerCase())
+    ) {
+      continue;
+    }
+    total++;
+
+    const tr = document.createElement('tr');
+    const nametd = document.createElement('td');
+    const valuetd = document.createElement('td');
+    const removetd = document.createElement('td');
+    const removebtn = document.createElement('button');
+
+    removebtn.dataset.role = 'remove-cookie';
+    removebtn.dataset.cookieName = name;
+    removebtn.textContent = 'удалить';
+    nametd.textContent = name;
+    valuetd.textContent = value;
+    valuetd.classList.add('value');
+    tr.append(nametd, valuetd, removetd);
+    removetd.append(removebtn);
+
+    fragment.append(tr);
+
+    if (total) {
+      listTable.parentNode.classList.remove('hidden');
+      listTable.append(fragment);
+    } else {
+      listTable.parentNode.classList.add('hidden');
+    }
+  }
+};
