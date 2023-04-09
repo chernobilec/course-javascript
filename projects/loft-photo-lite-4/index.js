@@ -1,3 +1,4 @@
+import model  from './model';
 import pages from './pages';
 import mainPage from './mainPage';
 import profilePage from './profilePage';
@@ -6,12 +7,13 @@ import('./styles.css');
 
 const pageNames = ['login', 'main', 'profile'];
 
-document.addEventListener('click', () => {
-  const pageName = model.getRandomElement(pageNames);
-  pages.openPage('main');
-});
+// document.addEventListener('click', () => {
+//   const pageName = model.getRandomElement(pageNames);
 
-// pages.openPage('login');
-// loginPage.handleEvents();
-// mainPage.handleEvents();
+//   pages.openPage('main');
+// });
+
+pages.openPage('login');
+loginPage.handleEvents();
+mainPage.handleEvents();
 // profilePage.handleEvents();

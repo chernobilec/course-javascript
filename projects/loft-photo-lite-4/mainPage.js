@@ -31,7 +31,7 @@ export default {
       startPoint = {y: e.changedTouches[0].pageY};
     });
 
-    document.querySelector('.component-photo').addEventListener('touchstart', async e => {
+    document.querySelector('.component-photo').addEventListener('touchend', async e => {
       const direct = e.changedTouches[0].pageY - startPoint.y;
       if (direct < 0) {
         await this.getNextPhoto();
